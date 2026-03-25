@@ -1,31 +1,34 @@
-import { useRef, useState } from 'react'
-import { Button, Form, Input, Modal } from 'antd'
+import { useEffect, useRef, useState } from "react";
+import { Button, Form, Input, Modal } from "antd";
 
-const { TextArea } = Input
+const { TextArea } = Input;
 
 function FeedbackModal() {
-  const [open, setOpen] = useState(false)
-  const [form] = Form.useForm()
-  const textareaRef = useRef(null)
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm();
+  const textareaRef = useRef(null);
 
-  const handleOpen = () => setOpen(true)
+  const handleOpen = () => setOpen(true);
 
   const handleCancel = () => {
-    setOpen(false)
-    form.resetFields()
-  }
-
-  // Фокус на textarea после завершения анимации открытия модалки
-  const handleAfterOpenChange = (visible) => {
-    if (visible && textareaRef.current) {
-      textareaRef.current.focus()
-    }
-  }
+    setOpen(false);
+    form.resetFields();
+  };
 
   const handleFinish = (values) => {
-    console.log('Значения формы:', values)
-    handleCancel()
-  }
+    console.log("Значения формы:", values);
+    handleCancel();
+  };
+
+  // ✅ фокус при открытии
+  useEffect(() => {
+    if (open) {
+      // маленькая задержка, чтобы DOM точно был готов
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 50);
+    }
+  }, [open]);
 
   return (
     <>
@@ -37,25 +40,13 @@ function FeedbackModal() {
         title="Форма обратной связи"
         open={open}
         onCancel={handleCancel}
-        afterOpenChange={handleAfterOpenChange}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
+        // ❗️ убрали destroyOnClose
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleFinish}
-        >
-          <Form.Item
-            name="message"
-            label="Сообщение"
-            rules={[{ required: true, message: 'Пожалуйста, введите сообщение' }]}
-          >
-            <TextArea
-              ref={textareaRef}
-              rows={4}
-              placeholder="Введите ваше сообщение..."
-            />
+        <Form form={form} layout="vertical" onFinish={handleFinish}>
+          <Form.Item name="message" label="Сообщение" rules={[{ required: true, message: "Пожалуйста, введите сообщение" }]}>
+            <TextArea ref={textareaRef} rows={4} placeholder="Введите ваше сообщение..." />
           </Form.Item>
 
           <Form.Item>
@@ -66,7 +57,7 @@ function FeedbackModal() {
         </Form>
       </Modal>
     </>
-  )
+  );
 }
 
-export default FeedbackModal
+export default FeedbackModal;
